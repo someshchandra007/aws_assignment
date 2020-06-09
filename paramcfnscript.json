@@ -1,0 +1,62 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+	"Parameters": {
+
+		"LambdaFunctionName": {
+			"Description": "Specify lambda function name",
+			"Type": "String",
+			"Default": "exercise-lambda"
+    },
+		"CodeBucket": {
+			"Description": "S3 Bucket containing Lambda deployment scripts",
+			"Type": "String",
+			"Default": "app-input-data"
+		},
+
+		"CodeKeyPrefix": {
+			"Description": "The key prefix or path for all zip files in CodeBucket",
+			"Type": "String",
+			"Default": "scripts"
+		},
+		"LambdaExecutionRole": {
+			"Description": "Specify the AWS role for Lambda Exeuction",
+			"Type": "String",
+			"Default": "arn:aws:iam::424297056468:role/LambdaRoleForASM"
+    }
+	},
+
+	"Resources":
+    {
+
+			"CreateLambdaFunction": {
+				"Type": "AWS::Lambda::Function",
+				"Properties": {
+					"Handler": "exercise-lambda.lambda_handler",
+					"Role": {
+						"Ref": "LambdaExecutionRole"
+					},
+					"Description": "function retrive from ssm and saves in S3",
+					"Code": {
+						"S3Bucket": { "Ref": "CodeBucket" },
+						"S3Key": {
+							"Fn::Join" : [ "", [{"Ref" : "CodeKeyPrefix"} , "/", "exercise-lambda.zip"]]
+							}
+					},
+					"Runtime": "python3.7",
+					"MemorySize" : "512",
+					"Timeout": "60"
+				}
+			}
+
+
+	},
+
+	"Outputs": {
+
+		"CreateLambdaFunction": {
+					"Value":
+					{ "Fn::GetAtt": ["CreateLambdaFunction","Arn"] }
+		}
+		
+	}
+}
